@@ -1,0 +1,11 @@
+# outlines
+outlines
+torch 
+transformers 
+datasets
+accelerate
+
+# xgrammar
+xgrammar==v0.1.5.rc1
+cuda-python 
+nvidia-cuda-nvrtc-cu12

@@ -1,0 +1,1 @@
+from xg.generator import GrammarBasedGenerator
