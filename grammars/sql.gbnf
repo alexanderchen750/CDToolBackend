@@ -1,0 +1,77 @@
+# Comprehensive SQL Grammar in GBNF
+
+# Root rule, allows one or more SQL statements separated by semicolons
+root ::= (statement ";")+ 
+
+# General statements
+statement ::= ddl_stmt | dml_stmt | transaction_stmt | query_stmt
+
+# Data Definition Language (DDL)
+ddl_stmt ::= create_stmt | alter_stmt | drop_stmt
+create_stmt ::= "CREATE" ws ("TABLE" ws table ws "(" columns_def ")" | "DATABASE" ws identifier)
+alter_stmt ::= "ALTER" ws "TABLE" ws table ws alter_action
+alter_action ::= "ADD" ws column_def | "DROP" ws column | "MODIFY" ws column_def
+drop_stmt ::= "DROP" ws ("TABLE" ws table | "DATABASE" ws identifier)
+
+# Data Manipulation Language (DML)
+dml_stmt ::= insert_stmt | update_stmt | delete_stmt
+insert_stmt ::= "INSERT INTO" ws table ws "(" columns ")" ws "VALUES" ws "(" values ")"
+update_stmt ::= "UPDATE" ws table ws "SET" ws assignments (ws "WHERE" ws condition)?
+delete_stmt ::= "DELETE FROM" ws table (ws "WHERE" ws condition)?
+
+# Query Language
+query_stmt ::= select_stmt | subquery
+select_stmt ::= "SELECT" ws ("DISTINCT" ws)? select_columns ws "FROM" ws table_references (ws "WHERE" ws condition)? (ws "GROUP BY" ws columns)? (ws "HAVING" ws condition)? (ws "ORDER BY" ws columns (ws "ASC" | ws "DESC")?)? (ws "LIMIT" ws number)?
+
+# Table references and JOINs
+table_references ::= table (ws join_clause)*
+join_clause ::= join_type ws "JOIN" ws table ws "ON" ws condition
+join_type ::= "INNER" | "LEFT" | "RIGHT" | "FULL" | ""
+
+# Subqueries
+subquery ::= "(" ws select_stmt ws ")"
+
+# Transactions
+transaction_stmt ::= "BEGIN" ws "TRANSACTION" | "COMMIT" | "ROLLBACK"
+
+# Column definitions
+columns_def ::= column_def (ws "," ws column_def)*
+column_def ::= identifier ws data_type (ws column_constraint)*
+
+# Data types and constraints
+data_type ::= "INT" | "VARCHAR" "(" number ")" | "TEXT" | "DATE" | "FLOAT" | "BOOLEAN"
+column_constraint ::= "PRIMARY KEY" | "NOT NULL" | "UNIQUE" | "AUTO_INCREMENT" | "DEFAULT" ws value
+
+# Assignments
+assignments ::= assignment (ws "," ws assignment)*
+assignment ::= column ws "=" ws value
+
+# Select columns
+select_columns ::= "*" | columns
+
+# Conditions
+condition ::= condition_term (ws condition_op ws condition_term)*
+condition_op ::= "AND" | "OR"
+condition_term ::= column ws comparator ws value | subquery
+comparator ::= "=" | "!=" | "<" | "<=" | ">" | ">=" | "IN" ws "(" values ")" | "LIKE" ws string | "IS" ws "NULL"
+
+# Tables and columns
+table ::= identifier
+column ::= identifier
+
+# Columns (fix for missing definition)
+columns ::= column (ws "," ws column)*
+
+# Identifiers (table/column names) and values
+identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
+value ::= number | string | "NULL" | subquery
+
+# Numbers and strings
+number ::= [0-9]+
+string ::= "'" [^']* "'"
+
+# Values
+values ::= value (ws "," ws value)*
+
+# Whitespace
+ws ::= [ \t\n]+

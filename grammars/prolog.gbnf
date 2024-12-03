@@ -1,0 +1,99 @@
+# Root: A Prolog program consists of one or more clauses or directives
+root ::= (clause ".")+ | (directive ".")+
+
+# Clauses: facts, rules, or queries
+clause ::= fact | rule | query
+
+# Directives: special Prolog instructions
+directive ::= ":-" ws directive_body
+directive_body ::= "dynamic" ws predicate "/" integer
+                 | "multifile" ws predicate "/" integer
+                 | "discontiguous" ws predicate "/" integer
+
+# Facts: predicates with zero or more terms
+fact ::= predicate "(" terms ")"
+       | predicate
+
+# Rules: head and body separated by ":-"
+rule ::= predicate "(" terms ")" ":-" body
+       | predicate ":-" body
+
+# Queries: a goal to be satisfied
+query ::= "?-" ws body
+
+# Body: one or more goals separated by commas
+body ::= goal ("," goal)*
+
+# Goals: predicates, comparisons, or control constructs
+goal ::= predicate "(" terms ")"
+       | predicate
+       | comparison
+       | control_construct
+
+# Control Constructs
+control_construct ::= "true"
+                    | "fail"
+                    | "repeat"
+                    | "!"  # Cut
+                    | "call" ws "(" goal ")"
+                    | "not" ws "(" goal ")"  # Negation
+
+# Predicates: identifiers representing relations
+predicate ::= identifier
+
+# Comparisons: arithmetic or logical comparisons
+comparison ::= term comparator term
+comparator ::= "=" | "==" | "\\=" | "<" | ">" | "<=" | ">=" | "=:=" | "=\\="
+
+# Arithmetic Expressions
+arithmetic_expression ::= term arithmetic_op term
+arithmetic_op ::= "+" | "-" | "*" | "/" | "mod" | "**"
+
+# Terms: atoms, numbers, variables, lists, or compound terms
+terms ::= term ("," term)*
+term ::= atom
+      | number
+      | variable
+      | compound_term
+      | list
+      | string
+
+# Compound terms: functor with arguments
+compound_term ::= functor "(" terms ")"
+functor ::= identifier
+
+# Lists: square-bracket notation
+list ::= "[" ws list_elements ws "]"
+list_elements ::= term (ws "," ws term)* | list_tail
+list_tail ::= term ws "|" ws term
+
+# Atoms: single-quoted strings or unquoted identifiers
+atom ::= "'" [^']* "'"  # Single-quoted strings
+       | identifier     # Unquoted identifiers
+
+# Strings: double-quoted strings
+string ::= "\"" [^"]* "\""
+
+# Variables: uppercase or underscore-prefixed identifiers
+variable ::= [A-Z_][a-zA-Z0-9_]*
+
+# Numbers: integers or floating-point values
+number ::= integer | float
+integer ::= [0-9]+
+float ::= [0-9]+ "." [0-9]+
+
+# Identifiers: lowercase letters followed by alphanumeric characters or underscores
+identifier ::= [a-z][a-zA-Z0-9_]*
+
+# Values: constants like `true`, `false`, or `nil`
+value ::= "true" | "false" | "nil" | "[]"
+
+# Comments: single-line or multi-line
+comment ::= "%" [^"\n"]*  # Single-line comment
+          | "/*" [^*]* "*/"  # Multi-line comment
+
+# Whitespace (optional for readability)
+ws ::= [ \t\n]+
+
+# Operators
+operator ::= comparator | arithmetic_op
