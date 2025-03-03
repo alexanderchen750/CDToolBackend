@@ -1,0 +1,7 @@
+root ::= start
+
+start ::= value ?value: object | array | escaped-string | signed-number -> number | "true" -> true | "false" -> false | "null" -> null
+
+array ::= "[" [value ("," value)*] "]"
+
+object ::= "{" [pair ("," pair)*] "}"

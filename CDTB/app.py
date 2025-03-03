@@ -4,7 +4,7 @@ from flask_cors import CORS
 #from generators.guidance_generator import GuidanceGenerator
 
 from parser_utils import parse_input, DEFAULT_GRAMMAR
-from generators import GuidanceGenerator, XGrammarGenerator
+from generators import GuidanceGenerator, XGrammarGenerator, OutlinesGenerator
 
 app = Flask(__name__)
 CORS(app)
@@ -29,20 +29,29 @@ def parse():
     if library == "guidance":
         generator = GuidanceGenerator(MODEL_NAME, MODEL_CACHE_DIR)
         raw_output, token_output = generator.generate(prompt)
-
+        print("GUIDANCE")
     if library == "xgrammar":
-        xGrammarGenerator = XGrammarGenerator(MODEL_NAME,MODEL_CACHE_DIR,EBNF_PATH)
-        raw_output = xGrammarGenerator.generate(SYSTEM_PROMPT,prompt)
-        token_output=""
+        xGrammarGenerator = XGrammarGenerator(MODEL_NAME,MODEL_CACHE_DIR,ebnf_in=grammar)
+        raw_output, token_output = xGrammarGenerator.generate(SYSTEM_PROMPT,prompt)
+        grammar = DEFAULT_GRAMMAR
         print("XGRAMMAR")
 
+    if library == "outlines":
+        outlinesGenerator = OutlinesGenerator(MODEL_NAME,grammar)
+        raw_output = outlinesGenerator.generate(SYSTEM_PROMPT,prompt)
+        token_output=""
+        print("OUTLINES")
 
+    print(token_output)
 
     # Parse the model output
     result = parse_input(raw_output, grammar)
 
     # Return the result as JSON
-    return jsonify({**result, "tokenOutput": token_output}), (200 if result['status'] == 'success' else 400)
+    if library == "XGRAMMAR":
+        return jsonify({"output": raw_output, "tokenOutput": token_output})
+    else:
+        return jsonify({**result, "tokenOutput": token_output}), (200 if result['status'] == 'success' else 400)
 
 @app.route('/test', methods=['GET'])
 def test():

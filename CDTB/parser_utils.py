@@ -1,5 +1,6 @@
 from lark import Lark, Tree
 import logging
+import re
 
 #logging.basicConfig(level=logging.DEBUG)
 #logging.getLogger("lark").setLevel(logging.DEBUG)
@@ -41,11 +42,22 @@ def parse_input(text_input, grammar=DEFAULT_GRAMMAR):
     Returns the parsed tree in dictionary format.
     """
     try:
-        parser = Lark(grammar, start="start", debug=True)
+        print("init Lark")
+        parser = Lark(format_to_lark_ebnf(grammar), start="start", debug=True)
+        print("starting parser.parse")
         tree = parser.parse(text_input)
+        print("Sucess")
         return {'status': 'success', 'output': text_input, 'parse_tree': tree_to_dict(tree)}
     except Exception as e:
+        print("fail")
+        print(str(e))
         return {'status': 'error', 'message': str(e)}
+
+def format_to_lark_ebnf(grammar):
+    cleaned_grammar = re.sub("::=",":",grammar)
+    cleaned_grammar = re.sub("root","start",cleaned_grammar)
+    print(cleaned_grammar)
+    return cleaned_grammar
 
 # Default grammar
 
